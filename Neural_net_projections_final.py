@@ -6,14 +6,15 @@ Layers = 3
 Perceptrons = [2, 3, 3, 1] 
 
 # Initialize weights as random numbers 
-W1 = np.random.randn(Perceptrons[1], Perceptrons[0]) # Matrix size is 3x2, 3 weights for each of the 2 inputs
-W2 = np.random.randn(Perceptrons[2], Perceptrons[1]) # Matrix size is 3x3, 3 previous neurons feeding into 3 more
-W3 = np.random.randn(Perceptrons[3], Perceptrons[2]) # Matrix is 1x3, 1 weight for each of the previous 3 neurons
+rng = np.random.default_rng(seed = 42)
+W1 = rng.normal(loc=0.0, scale=1.0, size=(Perceptrons[1], Perceptrons[0]))
+W2 = rng.normal(loc=0.0, scale=1.0, size=(Perceptrons[2], Perceptrons[1]))
+W3 = rng.normal(loc=0.0, scale=1.0, size=(Perceptrons[3], Perceptrons[2]))
 
 # Initialize bias for each layer
-b1 = np.random.randn(Perceptrons[1], 1) # 1 bias for each neuron in first layer 
-b2 = np.random.randn(Perceptrons[2], 1) 
-b3 = np.random.randn(Perceptrons[3], 1)
+b1 = rng.normal(loc=0.0, scale=1.0, size=(Perceptrons[1], 1)) # 1 bias for each neuron in first layer 
+b2 = rng.normal(loc=0.0, scale=1.0, size=(Perceptrons[2], 1)) 
+b3 = rng.normal(loc=0.0, scale=1.0, size=(Perceptrons[3], 1)) 
 
 ###############################
 # Data generation
@@ -211,7 +212,7 @@ final_model = train(epochs=epoch, alpha=alpha)
 
 
 #######################
-print_unlabeled = 1
+print_unlabeled = 0
 #######################
 if print_unlabeled == 1:
     plt.scatter(final_model['A0'][0,:], final_model['A0'][1,:], s=60)
@@ -232,7 +233,7 @@ if print_unlabeled == 1:
 
 #######################
 colors = np.array(["C0", "C1"])
-print_labeled = 1
+print_labeled = 0
 #######################
 if print_labeled == 1:
     plt.scatter(final_model['A0'][0,:], final_model['A0'][1,:], c=colors[y.squeeze()], s=60)
@@ -252,7 +253,7 @@ if print_labeled == 1:
     plt.show()
 
 #######################
-print_3D = 1
+print_3D = 0
 #######################
 if print_3D == 1:
     plt.scatter(final_model['A0'][0,:], final_model['A0'][1,:], c=colors[y.squeeze()], s=60)
@@ -270,6 +271,42 @@ if print_3D == 1:
     plt.show()
 
     plt.scatter(x=final_model['A3'], y=np.zeros_like(final_model['A3']), c=colors[y.squeeze()], s=5)
+    plt.title("Final 1-D representation")
+    plt.axvline(x=0.50, color='lightgray', linestyle='--', ymin=0.2, ymax=0.8)
+    plt.show()
+
+
+#######################
+print_3D_star = 1
+#######################
+if print_3D_star == 1:
+
+    star_data = final_model.copy()
+    for key in ["A0", "A1", "A2", "A3"]:
+        star_data[key] = np.delete(star_data[key], 5, axis=1)
+
+    y_star = y.copy()
+    y_star = np.delete(y_star, 5, axis=1)
+
+    plt.scatter(star_data['A0'][0,:], star_data['A0'][1,:], c=colors[y_star.squeeze()], s=60)
+    plt.scatter(final_model['A0'][0,5], final_model['A0'][1,5], s=150, marker='*', c='crimson')
+    plt.title("Original X1 and X2")
+    plt.show()
+
+    # First layer of 3 neurons (3 representations)
+    fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+    ax.scatter(star_data['A1'][0,:], star_data['A1'][1,:], star_data['A1'][2,:], c=colors[y_star.squeeze()])
+    ax.scatter(final_model['A1'][0,5], final_model['A1'][1,5], final_model['A1'][2,5], s=150, marker='*', c='crimson')
+    plt.show()
+
+    # Second layer of 3 neurons (3 representations)
+    fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+    ax.scatter(final_model['A2'][0,:], final_model['A2'][1,:], final_model['A2'][2,:], c=colors[y.squeeze()])
+    ax.scatter(final_model['A2'][0,5], final_model['A2'][1,5], final_model['A2'][2,5], s=150, marker='*', c='crimson')
+    plt.show()
+
+    plt.scatter(x=final_model['A3'], y=np.zeros_like(final_model['A3']), c=colors[y.squeeze()], s=5)
+    plt.scatter(x=final_model['A3'][0,5], y=0, s=150, marker='*', c='crimson')
     plt.title("Final 1-D representation")
     plt.axvline(x=0.50, color='lightgray', linestyle='--', ymin=0.2, ymax=0.8)
     plt.show()
