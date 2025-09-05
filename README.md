@@ -50,10 +50,12 @@ Explore how neural nets use transformations/representations of data to perform b
 
 # Loss Landscape:  
 
-Coming soon!
+**Figure 5:** Demonstrates the loss landscape for various values of two weights in the final layer.  
+|                                            |                                            |
+|--------------------------------------------|--------------------------------------------|
+| <img src="figs/Figure_16.png" width="600"> | <img src="figs/Figure_17.png" width="600"> |
 
-
-
+***Note:** This is the landscape for loss with respect to only two weights in the final layer of the model. The complete loss landscape is not depicted here. Both images are of the same landscape, just with a different orientation/viewpoint. 
 
 ------------
 
