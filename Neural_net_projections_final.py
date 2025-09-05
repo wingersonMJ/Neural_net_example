@@ -310,3 +310,75 @@ if print_3D_star == 1:
     plt.title("Final 1-D representation")
     plt.axvline(x=0.50, color='lightgray', linestyle='--', ymin=0.2, ymax=0.8)
     plt.show()
+
+
+###############
+# Loss Landscape
+###############
+print(final_model['W3'])
+print(final_model['W3'][0,0]) # first weight in final layer (W3,1)
+print(final_model['W3'][0,1]) # second weight in final layer (W3,2)
+print(final_model['W3'][0,2])
+
+# Set values to create meshgrid for W3,1 x W3,2
+mesh1 = np.linspace(-10, 20, 100) # -10 to 20, 100 evenly spaced values
+mesh2 = np.linspace(-20, 10, 100)
+M1, M2 = np.meshgrid(mesh1, mesh2)
+
+# Custom train function
+def forward_pass_landscape(Wt1, Wt2, Wt3, X, y):
+    """
+    Feed forward network, when given the weights to use
+    Replace final layer weights W3,1 and W3,2 with mesh values
+    Calculate cost just the same
+    """
+    # First layer
+    A0 = X.T
+    Z1 = Wt1 @ A0 + b1
+    A1 = sigmoid(Z1)
+
+    # Second layer 
+    Z2 = Wt2 @ A1 + b2 
+    A2 = sigmoid(Z2)
+
+    # Third layer
+    Z3 = Wt3 @ A2 + b3
+    A3 = sigmoid(Z3)
+
+    # Predict
+    y_hat = (A3 > 0.50).astype(int)
+
+    L_values = {
+        "A0": A0,
+        "A1": A1,
+        "A2": A2,
+        "A3": A3,
+        "y_hat": y_hat
+    }
+
+    # Combine with previously defined loss function
+    loss = entropy(prob = L_values["A3"], y = y)
+    return loss
+
+# For loop
+landscape_losses = []
+for w1, w2 in zip(M1.ravel(), M2.ravel()):
+    Wt3 = np.array([w1, w2, final_model['W3'][0, 2]])
+    loss = forward_pass_landscape(
+        Wt1=final_model["W1"],
+        Wt2=final_model["W2"],
+        Wt3=Wt3,
+        X=X,
+        y=y
+    )
+    landscape_losses.append(loss)
+
+Z = np.asarray(landscape_losses).reshape(M1.shape)
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+ax.plot_surface(M1, M2, Z, rstride=1, cstride=1, linewidth=0, antialiased=True, cmap='terrain')
+ax.set_xlabel('Wt3[0]')
+ax.set_ylabel('Wt3[1]')
+ax.set_zlabel('Loss')
+plt.show()
+
